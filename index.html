@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080b10" />
+    <title>Los Santos Prototype</title>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="menu" class="screen">
+      <div class="menu-card">
+        <div class="eyebrow">OPEN WORLD ACTION PROTOTYPE</div>
+        <h1>LOS SANTOS</h1>
+        <p>A browser-based 3D crime sandbox inspired by open-world action games.</p>
+        <button id="play">PLAY</button>
+        <div class="menu-grid">
+          <span>WASD</span><small>Move</small>
+          <span>SHIFT</span><small>Sprint</small>
+          <span>SPACE</span><small>Jump</small>
+          <span>LMB</span><small>Shoot</small>
+          <span>E</span><small>Enter / exit</small>
+          <span>ESC</span><small>Pause</small>
+        </div>
+        <p class="legal">Original procedural prototype. No Rockstar assets are included.</p>
+      </div>
+    </div>
+    <div id="pause" class="screen hidden">
+      <div class="pause-card"><h2>PAUSED</h2><p>Click resume to continue.</p><button id="resume">RESUME</button></div>
+    </div>
+    <div id="hud">
+      <div class="hud-top">
+        <div class="brand">LS <span>01</span></div>
+        <div class="stats"><b id="cash">$2,500</b><span id="location">VESPUCCI DISTRICT</span></div>
+      </div>
+      <div class="wanted" id="wanted"></div>
+      <div class="crosshair"><i></i><i></i><i></i><i></i></div>
+      <div class="prompt" id="prompt"></div>
+      <div class="weapon"><strong>9MM</strong><span id="ammo">12 / 120</span></div>
+      <div class="health"><div id="healthFill"></div></div>
+      <div class="hint">WASD MOVE · SHIFT SPRINT · SPACE JUMP · LMB FIRE · E ENTER · ESC PAUSE</div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
