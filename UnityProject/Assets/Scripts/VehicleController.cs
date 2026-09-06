@@ -1,52 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class VehicleController : MonoBehaviour
-{
-    public bool PlayerVehicle;
-    public float MotorTorque=1800f, BrakeTorque=3000f, MaxSteerAngle=32f, ParkSteerSpeed=22f;
-    public WheelCollider FrontLeft,FrontRight,RearLeft,RearRight;
-    public Transform FrontLeftVisual,FrontRightVisual,RearLeftVisual,RearRightVisual;
-    public bool IsDriven {get;private set;}
-    Rigidbody rb;
-    Transform driver;
-    ThirdPersonCamera cam;
-
-    public void SetupWheels(Material tireMat){
-        rb=GetComponent<Rigidbody>();
-        CreateWheel("FL",new Vector3(-.82f,.28f,1.45f),true,out FrontLeft,out FrontLeftVisual);
-        CreateWheel("FR",new Vector3(.82f,.28f,1.45f),true,out FrontRight,out FrontRightVisual);
-        CreateWheel("RL",new Vector3(-.82f,.28f,-1.45f),false,out RearLeft,out RearLeftVisual);
-        CreateWheel("RR",new Vector3(.82f,.28f,-1.45f),false,out RearRight,out RearRightVisual);
-    }
-    void CreateWheel(string n,Vector3 pos,bool steer,out WheelCollider wc,out Transform visual){
-        var go=new GameObject(n);go.transform.SetParent(transform);go.transform.localPosition=pos;go.transform.localRotation=Quaternion.identity;
-        wc=go.AddComponent<WheelCollider>();wc.radius=.34f;wc.mass=35;wc.suspensionDistance=.22f;wc.center=Vector3.down*.02f;wc.steerAngle=0;
-        var spring=wc.suspensionSpring;spring.spring=28000;spring.damper=4500;spring.targetPosition=.5f;wc.suspensionSpring=spring;wc.forwardFriction=new WheelFrictionCurve{extremumSlip=.35f,extremumValue=1f,asymptoteSlip=.8f,asymptoteValue=.8f,stiffness=1.6f};wc.sidewaysFriction=new WheelFrictionCurve{extremumSlip=.2f,extremumValue=1f,asymptoteSlip=.5f,asymptoteValue=.75f,stiffness=2f};
-        var mesh=GameObject.CreatePrimitive(PrimitiveType.Cylinder);mesh.name=n+"_Visual";mesh.transform.SetParent(go.transform);mesh.transform.localPosition=Vector3.zero;mesh.transform.localRotation=Quaternion.Euler(0,0,90);mesh.transform.localScale=new Vector3(.34f,.11f,.34f);Object.Destroy(mesh.GetComponent<Collider>());mesh.GetComponent<Renderer>().material=new Material(Shader.Find("Universal Render Pipeline/Lit")){color=new Color(.015f,.015f,.015f)};visual=mesh.transform;
-    }
-    void Update(){
-        if(!PlayerVehicle||rb==null)return;
-        if(!IsDriven){
-            if(Keyboard.current?.eKey.wasPressedThisFrame==true&&NearPlayer())Enter();
-            return;
-        }
-        if(Keyboard.current?.fKey.wasPressedThisFrame==true||Keyboard.current?.eKey.wasPressedThisFrame==true)Exit();
-        float throttle=0; if(Keyboard.current?.wKey.isPressed==true)throttle+=1; if(Keyboard.current?.sKey.isPressed==true)throttle-=1;
-        float steer=0; if(Keyboard.current?.aKey.isPressed==true)steer-=1; if(Keyboard.current?.dKey.isPressed==true)steer+=1;
-        float speed=rb.linearVelocity.magnitude*3.6f;
-        float steerAngle=steer*MaxSteerAngle*Mathf.Lerp(1f,.45f,Mathf.Clamp01(speed/80f));
-        FrontLeft.steerAngle=steerAngle;FrontRight.steerAngle=steerAngle;
-        float drive=throttle*MotorTorque;FrontLeft.motorTorque=drive;FrontRight.motorTorque=drive;RearLeft.motorTorque=drive;RearRight.motorTorque=drive;
-        float brake=(throttle==0?BrakeTorque:0)+(throttle<0&&speed>3?BrakeTorque*.5f:0);FrontLeft.brakeTorque=brake;FrontRight.brakeTorque=brake;RearLeft.brakeTorque=brake;RearRight.brakeTorque=brake;
-        if(Mathf.Abs(steer)>.01f&&speed<ParkSteerSpeed){
-            float yaw=steer*1.2f*Time.deltaTime; transform.Rotate(0,yaw,0,Space.World); rb.angularVelocity=Vector3.zero;
-        }
-        UpdateVisual(FrontLeft,FrontLeftVisual);UpdateVisual(FrontRight,FrontRightVisual);UpdateVisual(RearLeft,RearLeftVisual);UpdateVisual(RearRight,RearRightVisual);
-        GetComponentInChildren<Camera>();
-    }
-    bool NearPlayer(){var p=GameObject.FindGameObjectWithTag("Player");return p&&Vector3.Distance(p.transform.position,transform.position)<4f;}
-    void Enter(){var p=GameObject.FindGameObjectWithTag("Player");if(!p)return;driver=p.transform;var cc=p.GetComponent<CharacterController>();if(cc)cc.enabled=false;p.SetActive(false);IsDriven=true;cam=Camera.main?Camera.main.GetComponent<ThirdPersonCamera>():null;if(cam)cam.SetTarget(transform);}
-    void Exit(){if(!driver)return;driver.gameObject.SetActive(true);driver.position=transform.position-transform.right*2.2f;driver.rotation=transform.rotation;var cc=driver.GetComponent<CharacterController>();if(cc)cc.enabled=true;IsDriven=false;driver=null;cam=Camera.main?Camera.main.GetComponent<ThirdPersonCamera>():null;if(cam)cam.SetTarget(GameObject.FindGameObjectWithTag("Player").transform);}
-    void UpdateVisual(WheelCollider wc,Transform visual){wc.GetWorldPose(out var p,out var q);visual.position=p;visual.rotation=q*Quaternion.Euler(0,0,90);}
+public class VehicleController:MonoBehaviour{
+ public bool PlayerVehicle; public float MotorTorque=2200f,BrakeTorque=3500f,MaxSteerAngle=32f,ParkSteerSpeed=4f,SteerRate=55f;
+ public WheelCollider FrontLeft,FrontRight,RearLeft,RearRight; public Transform FrontLeftVisual,FrontRightVisual,RearLeftVisual,RearRightVisual; public bool IsDriven{get;private set;}
+ Rigidbody rb; Transform driver; ThirdPersonCamera cam; bool wasBraking;
+ public void SetupWheels(){rb=GetComponent<Rigidbody>();CreateWheel("FL",new Vector3(-.82f,.25f,1.35f),out FrontLeft,out FrontLeftVisual);CreateWheel("FR",new Vector3(.82f,.25f,1.35f),out FrontRight,out FrontRightVisual);CreateWheel("RL",new Vector3(-.82f,.25f,-1.35f),out RearLeft,out RearLeftVisual);CreateWheel("RR",new Vector3(.82f,.25f,-1.35f),out RearRight,out RearRightVisual);}
+ void CreateWheel(string n,Vector3 pos,out WheelCollider wc,out Transform visual){var g=new GameObject(n);g.transform.SetParent(transform,false);g.transform.localPosition=pos;wc=g.AddComponent<WheelCollider>();wc.radius=.34f;wc.suspensionDistance=.2f;var mesh=GameObject.CreatePrimitive(PrimitiveType.Cylinder);mesh.name=n+"Visual";mesh.transform.SetParent(g.transform,false);mesh.transform.localRotation=Quaternion.Euler(0,0,90);mesh.transform.localScale=new Vector3(.34f,.12f,.34f);Object.Destroy(mesh.GetComponent<Collider>());mesh.GetComponent<Renderer>().material=new Material(Shader.Find("Universal Render Pipeline/Lit")){color=new Color(.01f,.01f,.01f)};visual=mesh.transform;}
+ void Update(){if(!PlayerVehicle||rb==null)return;Keyboard k=Keyboard.current;if(!IsDriven){if(k?.eKey.wasPressedThisFrame==true&&NearPlayer())Enter();return;}if(k?.fKey.wasPressedThisFrame==true||k?.eKey.wasPressedThisFrame==true)Exit();float throttle=(k?.wKey.isPressed==true?1:0)-(k?.sKey.isPressed==true?1:0);float steer=(k?.dKey.isPressed==true?1:0)-(k?.aKey.isPressed==true?1:0);float speed=rb.linearVelocity.magnitude*3.6f;float steerAngle=steer*MaxSteerAngle;FrontLeft.steerAngle=steerAngle;FrontRight.steerAngle=steerAngle;float torque=throttle*MotorTorque;FrontLeft.motorTorque=torque;FrontRight.motorTorque=torque;RearLeft.motorTorque=torque;RearRight.motorTorque=torque;float brake=throttle==0?BrakeTorque:0;if(wasBraking)brake=BrakeTorque;FrontLeft.brakeTorque=FrontRight.brakeTorque=RearLeft.brakeTorque=RearRight.brakeTorque=brake;wasBraking=throttle==0;if(Mathf.Abs(steer)>.01f&&speed<ParkSteerSpeed)transform.Rotate(0,steer*SteerRate*Time.deltaTime,0,Space.World);UpdateVisual(FrontLeft,FrontLeftVisual);UpdateVisual(FrontRight,FrontRightVisual);UpdateVisual(RearLeft,RearLeftVisual);UpdateVisual(RearRight,RearRightVisual);}
+ bool NearPlayer(){var p=GameObject.FindGameObjectWithTag("Player");return p&&Vector3.Distance(p.transform.position,transform.position)<4.5f;}
+ void Enter(){var p=GameObject.FindGameObjectWithTag("Player");if(!p)return;driver=p.transform;var cc=p.GetComponent<CharacterController>();if(cc)cc.enabled=false;p.SetActive(false);IsDriven=true;cam=Camera.main?Camera.main.GetComponent<ThirdPersonCamera>():null;if(cam)cam.SetTarget(transform);}
+ void Exit(){if(!driver)return;Transform exit=transform;driver.gameObject.SetActive(true);driver.position=transform.position-transform.right*2.4f+Vector3.up*.1f;driver.rotation=transform.rotation;var cc=driver.GetComponent<CharacterController>();if(cc)cc.enabled=true;IsDriven=false;var p=driver;driver=null;cam=Camera.main?Camera.main.GetComponent<ThirdPersonCamera>():null;if(cam)cam.SetTarget(p);}
+ void UpdateVisual(WheelCollider wc,Transform v){wc.GetWorldPose(out var p,out var q);v.position=p;v.rotation=q*Quaternion.Euler(0,0,90);}
 }
