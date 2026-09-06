@@ -1,22 +1,19 @@
 import * as THREE from 'three';
 
-// Keeps vehicle movement aligned with the visible front of the car.
-// The car mesh is built with its nose on local +X, so +X rotated by
-// the car quaternion is the authoritative forward direction.
 const previous = new WeakMap();
-const scratchForward = new THREE.Vector3(1, 0, 0);
-const scratchDelta = new THREE.Vector3();
-const scratchCorrected = new THREE.Vector3();
+const forward = new THREE.Vector3(1, 0, 0);
+const delta = new THREE.Vector3();
+const corrected = new THREE.Vector3();
 
 const originalRender = THREE.WebGLRenderer.prototype.render;
 
 THREE.WebGLRenderer.prototype.render = function patchedRender(scene, camera, ...rest) {
-  const vehicleRoot = scene.getObjectByProperty('type', 'Group');
-
-  // Find the game's vehicle group by the presence of vehicle userData.
   let vehicles = null;
+
   scene.traverse(object => {
-    if (!vehicles && object.isGroup && object.children.some(child => child.userData?.name === 'SENTINEL' || child.userData?.name === 'POLICE CRUISER')) {
+    if (!vehicles && object.isGroup && object.children.some(child =>
+      child.userData?.name === 'SENTINEL' || child.userData?.name === 'POLICE CRUISER'
+    )) {
       vehicles = object;
     }
   });
@@ -27,18 +24,22 @@ THREE.WebGLRenderer.prototype.render = function patchedRender(scene, camera, ...
 
       const old = previous.get(car);
       const current = car.position.clone();
-      const angle = car.rotation.y;
 
       if (old) {
-        scratchDelta.subVectors(current, old);
-        const distance = Math.hypot(scratchDelta.x, scratchDelta.z);
+        delta.subVectors(current, old);
+        const distance = Math.hypot(delta.x, delta.z);
 
-        if (distance > 0.00001) {
-          scratchForward.set(1, 0, 0).applyQuaternion(car.quaternion).setY(0).normalize();
-          const sign = scratchDelta.dot(scratchForward) >= 0 ? 1 : -1;
-          scratchCorrected.copy(old).addScaledVector(scratchForward, distance * sign);
-          car.position.x = scratchCorrected.x;
-          car.position.z = scratchCorrected.z;
+        // Ignore map-wrap teleports and other large repositioning events.
+        if (distance > 0.00001 && distance < 3.0) {
+          forward.set(1, 0, 0)
+            .applyQuaternion(car.quaternion)
+            .setY(0)
+            .normalize();
+
+          const sign = delta.dot(forward) >= 0 ? 1 : -1;
+          corrected.copy(old).addScaledVector(forward, distance * sign);
+          car.position.x = corrected.x;
+          car.position.z = corrected.z;
         }
       }
 
