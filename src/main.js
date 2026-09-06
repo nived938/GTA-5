@@ -562,6 +562,7 @@ function updateActors(dt) {
       const p = currentVehicle ? currentVehicle.position : player.position;
       const angle = Math.random() * Math.PI * 2;
       makeNPC(p.x + Math.cos(angle) * 35, p.z + Math.sin(angle) * 35, true);
+      spawnPolice();
     }
   }
 }
@@ -756,7 +757,7 @@ function onPointerLockChange() {
   }
 }
 
-player = makePlayer();
+const player = makePlayer();
 makeCity();
 makeTraffic();
 makeNPCs();
