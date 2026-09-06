@@ -1,10 +1,56 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#080b10"/><title>Los Santos</title></head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="theme-color" content="#080b10" />
+  <title>Los Santos</title>
+</head>
 <body>
 <div id="game"></div>
-<div id="menu" class="screen"><div class="menu-card"><div class="eyebrow">OPEN WORLD ACTION PROTOTYPE</div><h1>LOS SANTOS</h1><p>Explore the city, steal a car, enter buildings, fight enemies and escape the police.</p><button id="play">PLAY</button><div class="menu-grid"><span>WASD</span><small>Move / Drive</small><span>MOUSE</span><small>Look / Aim</small><span>LMB</span><small>Shoot</small><span>R</span><small>Reload</small><span>E</span><small>Enter / Exit / Car</small><span>F</span><small>Exit vehicle</small><span>M</span><small>Toggle minimap</small><span>ESC</span><small>Pause</small></div><p class="legal">Original procedural prototype. No Rockstar assets are included.</p></div></div>
-<div id="pause" class="screen hidden"><div class="pause-card"><h2>PAUSED</h2><p>Resume when you're ready.</p><button id="resume">RESUME</button></div></div>
-<div id="hud"><div class="hud-top"><div class="brand">LS <span>02</span></div><div class="stats"><b id="cash">$2,500</b><span id="location">VESPUCCI DISTRICT</span></div></div><div class="wanted" id="wanted"></div><div class="crosshair"><i></i><i></i><i></i><i></i></div><div class="prompt" id="prompt"></div><div class="vehicle" id="vehicleHud"><strong id="vehicleName">ON FOOT</strong><span id="speed">0 KM/H</span></div><div class="weapon"><strong id="weaponName">9MM</strong><span id="ammo">12 / 120</span></div><div class="health"><div id="healthFill"></div></div><div id="minimap" class="minimap"><canvas id="mapCanvas" width="220" height="220"></canvas><div class="map-player"></div></div><div class="hint">WASD MOVE · SHIFT SPRINT · LMB FIRE · R RELOAD · E INTERACT · F EXIT CAR · M MAP · ESC PAUSE</div></div>
+
+<div id="menu" class="screen">
+  <div class="menu-card">
+    <div class="eyebrow">OPEN WORLD ACTION PROTOTYPE</div>
+    <h1>LOS SANTOS</h1>
+    <p>Explore the city, take vehicles, enter buildings, use multiple weapons, complete jobs and survive police pursuit.</p>
+    <button id="play">PLAY</button>
+    <div class="menu-grid">
+      <span>WASD</span><small>Move / Drive</small>
+      <span>MOUSE</span><small>Look / Aim</small>
+      <span>LMB</span><small>Fire</small>
+      <span>R</span><small>Reload</small>
+      <span>1 2 3</span><small>Switch weapons</small>
+      <span>E</span><small>Interact</small>
+      <span>M</span><small>Map</small>
+      <span>J</span><small>Start mission</small>
+      <span>F5</span><small>Save game</small>
+      <span>F9</span><small>Load game</small>
+      <span>ESC</span><small>Pause</small>
+    </div>
+    <p class="legal">Original procedural prototype. No Rockstar assets are included.</p>
+  </div>
+</div>
+
+<div id="pause" class="screen hidden">
+  <div class="pause-card"><h2>PAUSED</h2><p>Resume when you're ready.</p><button id="resume">RESUME</button></div>
+</div>
+
+<div id="hud">
+  <div class="hud-top">
+    <div class="brand">LS <span>03</span></div>
+    <div class="stats"><b id="cash">$2,500</b><span id="location">VESPUCCI DISTRICT</span></div>
+  </div>
+  <div class="wanted" id="wanted"></div>
+  <div class="mission-box"><div class="mission-label">CURRENT OBJECTIVE</div><div id="missionText">NO ACTIVE MISSION • PRESS J TO START</div></div>
+  <div class="crosshair"><i></i><i></i><i></i><i></i></div>
+  <div class="prompt" id="prompt"></div>
+  <div class="vehicle" id="vehicleHud"><strong id="vehicleName">ON FOOT</strong><span id="speed">0 KM/H</span></div>
+  <div class="weapon"><strong id="weaponName">9MM</strong><span id="ammo">12 / 120</span></div>
+  <div class="health"><div id="healthFill"></div></div>
+  <div id="minimap" class="minimap"><canvas id="mapCanvas" width="220" height="220"></canvas><div class="map-player"></div></div>
+  <div class="hint">WASD MOVE · SHIFT SPRINT · LMB FIRE · 1/2/3 WEAPONS · R RELOAD · E INTERACT · M MAP · J MISSION · F5/F9 SAVE/LOAD · ESC PAUSE</div>
+</div>
 <script type="module" src="/src/main.js"></script>
-</body></html>
+</body>
+</html>
